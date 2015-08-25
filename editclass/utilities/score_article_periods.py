@@ -10,6 +10,7 @@ Options:
     <model-file>  The path to a `revscoring` scorer model file
     <dump-file>   The path to a MediaWiki XML dump file to process
 """
+import logging
 import sys
 
 import docopt
@@ -51,31 +52,35 @@ def main(argv=None):
 
 def run(page_periods, scorer_model, dump_paths):
 
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s %(levelname)s:%(name)s -- %(message)s'
+    )
+
     writer = mysqltsv.Writer(sys.stdout, headers=HEADERS)
 
     def process_dump(dump, path):
 
         for page in dump:
-            print(page.id)
             if page.namespace != 0 or page.id not in page_periods:
                 continue
             else:
                 start_id, end_id = page_periods[page.id]
 
-            sys.stderr.write(page.title + ": ");sys.stderr.flush()
+            #sys.stderr.write(page.title + ": ");sys.stderr.flush()
 
             pre_period_revision = None
             for revision in page:
                 if revision.id < start_id:
-                    sys.stderr.write(".");sys.stderr.flush()
+                    #sys.stderr.write(".");sys.stderr.flush()
                     pre_period_revision = revision
 
                 if revision.id == end_id:
                     start_score = generate_score(scorer_model,
                                                  pre_period_revision.text)
-                    sys.stderr.write("s1");sys.stderr.flush()
+                    #sys.stderr.write("s1");sys.stderr.flush()
                     end_score = generate_score(scorer_model, revision.text)
-                    sys.stderr.write("s2");sys.stderr.flush()
+                    #sys.stderr.write("s2");sys.stderr.flush()
                     yield (page.id,
                            pre_period_revision.id,
                            start_score['prediction'], weighted_sum(start_score),
@@ -84,7 +89,7 @@ def run(page_periods, scorer_model, dump_paths):
 
                     break
 
-            sys.stderr.write("\n")
+            #sys.stderr.write("\n")
 
     for values in mwxml.map(dump_paths, process_dump):
         writer.write(values)
