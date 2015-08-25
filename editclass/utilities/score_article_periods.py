@@ -14,8 +14,7 @@ import sys
 
 import docopt
 import mwxml
-from revscoring import dependencies
-from revscoring.features import revision
+from revscoring.datasources import revision
 from revscoring.scorer_models import MLScorerModel
 
 import mysqltsv
@@ -92,9 +91,9 @@ def run(page_periods, scorer_model, dump_paths):
 
 
 def generate_score(scorer_model, text):
-    feature_values = dependencies.solve(scorer_model.features,
-                                        cache={revision.text: text})
-    return scorer_model.score(feature_values)
+    feature_values = scorer_model.language.solve(scorer_model.features,
+                                                 cache={revision.text: text})
+    return scorer_model.score(list(feature_values))
 
 def weighted_sum(score):
     return sum(p*CLASS_VALUES[k] for k, p in score['probability'].items())

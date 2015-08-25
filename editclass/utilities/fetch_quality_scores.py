@@ -60,11 +60,18 @@ def run(periods, ores, session):
 
     for period in periods:
         # Get previous revision
-        revs = session.revisions.query(pageids=[period.page_id],
-                                       start_id=period.start_rev_id-1,
-                                       direction="older", limit=1)
+        try:
+            revs = session.revisions.query(pageids=[period.page_id],
+                                           start_id=period.start_rev_id-1,
+                                           direction="older", limit=1)
 
-        revs = list(revs)
+            revs = list(revs)
+        except Exception as e:
+            sys.stderr.write("re")
+            continue
+            #sys.stderr.write(traceback.format_exc())
+            #sys.stderr.write("\n")
+
         if len(revs) == 0:
             sys.stderr.write("?")
             continue
@@ -86,8 +93,9 @@ def run(periods, ores, session):
             sys.stderr.write(".");
             sys.stderr.flush()
         except Exception as e:
-            sys.stderr.write(traceback.format_exc())
-            sys.stderr.write("\n")
+            sys.stderr.write("se")
+            #sys.stderr.write(traceback.format_exc())
+            #sys.stderr.write("\n")
 
 
 
