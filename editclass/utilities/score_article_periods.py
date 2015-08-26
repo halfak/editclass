@@ -76,8 +76,14 @@ def run(page_periods, scorer_model, dump_paths):
                     pre_period_revision = revision
 
                 if revision.id == end_id:
-                    start_score = generate_score(scorer_model,
-                                                 pre_period_revision.text)
+                    if pre_period_revision is not None:
+                        start_text = pre_period_revision.text
+                        start_id = pre_period_revision.id
+                    else:
+                        start_text = ""
+                        start_id = None
+                    
+                    start_score = generate_score(scorer_model, start_text)
                     #sys.stderr.write("s1");sys.stderr.flush()
                     end_score = generate_score(scorer_model, revision.text)
                     #sys.stderr.write("s2");sys.stderr.flush()
@@ -91,7 +97,7 @@ def run(page_periods, scorer_model, dump_paths):
 
             #sys.stderr.write("\n")
 
-    for values in mwxml.map(dump_paths, process_dump):
+    for values in mwxml.map(process_dump, dump_paths):
         writer.write(values)
 
 
