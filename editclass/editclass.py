@@ -4,6 +4,7 @@ This script provides access to a set of utilities for edit classification
 * fetch_quality_scores -- Fetches quality scores for the bounds of article
                           periods
 * score_article_periods -- Generates article quality scores using XML dumps
+* reverted_status -- Gathers the reverted status of a set of edits.
 
 Usage:
     editclass (-h | --help)
